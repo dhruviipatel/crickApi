@@ -1,4 +1,5 @@
 import 'package:crickapi_trial/pages/seriesList.dart';
+import 'package:crickapi_trial/pages/testingPage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'pages/fantacyTitlepage.dart';
@@ -52,6 +53,11 @@ class MyHomePage extends StatelessWidget {
                 Get.to(() => SeriesList());
               },
               child: Text("Series List")),
+          ElevatedButton(
+              onPressed: () {
+                Get.to(() => TestingPage());
+              },
+              child: Text("Testing Page")),
         ],
       ),
     ));

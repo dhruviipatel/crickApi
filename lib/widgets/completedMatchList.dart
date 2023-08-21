@@ -1,8 +1,11 @@
+import 'package:crickapi_trial/models/seriesAllDetailModel.dart';
+import 'package:crickapi_trial/pages/matchDatailsPage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../apiController.dart';
+import '../models/matchDetailsModel.dart';
 
 class CompletedMatchList extends StatelessWidget {
   const CompletedMatchList({super.key});
@@ -119,6 +122,33 @@ class CompletedMatchList extends StatelessWidget {
                     apicontroller.completedMatches[index].status,
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              InkWell(
+                onTap: () async {
+                  MDetails matchdetails = await apicontroller.fetchMatchDetails(
+                      apicontroller.completedMatches[index].id);
+                  SeriesInfo2 serisdetails =
+                      await apicontroller.getSeriesInfo(matchdetails.seriesId);
+                  String seriesName = serisdetails.name;
+
+                  Get.to(() => MatchDetailsPage(),
+                      arguments: [matchdetails, seriesName]);
+                },
+                child: Container(
+                  height: 30,
+                  width: MediaQuery.of(context).size.width,
+                  color: Colors.deepPurple,
+                  child: Center(
+                    child: Text(
+                      "View More",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),

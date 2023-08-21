@@ -1,4 +1,7 @@
 import 'package:crickapi_trial/apiController.dart';
+import 'package:crickapi_trial/models/matchScorecardModel.dart';
+import 'package:crickapi_trial/widgets/batsmanlist.dart';
+import 'package:crickapi_trial/widgets/bowlerlist.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -29,7 +32,7 @@ class MatchDetailsPage extends StatelessWidget {
           ),
           backgroundColor: Colors.deepPurple,
         ),
-        body: Column(
+        body: ListView(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -126,60 +129,105 @@ class MatchDetailsPage extends StatelessWidget {
               ),
             ),
             Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            Table(
+              columnWidths: <int, TableColumnWidth>{
+                0: FixedColumnWidth(70),
+              },
               children: [
-                Text(
-                  "Venue: ",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                ),
-                Text(matchdetails.venue),
+                TableRow(children: [
+                  Text(
+                    "Venue: ",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                  ),
+                  Text(matchdetails.venue),
+                ])
               ],
             ),
             Divider(),
-            Text(
-              "Scoreboard:",
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
             matchdetails.score == null || matchdetails.score.isEmpty
                 ? Text("The scorecard will appear once the match starts.")
                 : Column(
                     children: [
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              matchdetails.teamInfo[0].name,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 14),
-                            ),
-                          ),
-                          Text(matchdetails.score[0].r.toString()),
-                          Text("-"),
-                          Text(matchdetails.score[0].w.toString()),
-                          Text("(${matchdetails.score[0].o.toString()})")
-                        ],
+                      Obx(
+                        () => ElevatedButton(
+                            onPressed: () {
+                              apicontroller.clickOnButton();
+                              apicontroller.getScorecard(matchdetails.id);
+                            },
+                            child: apicontroller.clickvalue == false
+                                ? Text("View Scoreboard")
+                                : Text("Hide Scoreboard")),
                       ),
-                      matchdetails.score.length > 1
-                          ? Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    matchdetails.teamInfo[1].name,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14),
-                                  ),
-                                ),
-                                Text(matchdetails.score[1].r.toString()),
-                                Text("-"),
-                                Text(matchdetails.score[1].w.toString()),
-                                Text("(${matchdetails.score[1].o.toString()})")
-                              ],
+                      Obx(() => apicontroller.clickvalue == true &&
+                              apicontroller.myscorecard != null
+                          ? ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount:
+                                  apicontroller.myscorecard!.score.length,
+                              itemBuilder: (context, index) {
+                                String inningTitile = apicontroller
+                                    .myscorecard!.score[index].inning
+                                    .toString();
+                                var run =
+                                    apicontroller.myscorecard!.score[index].r;
+                                var wicket =
+                                    apicontroller.myscorecard!.score[index].w;
+                                var over =
+                                    apicontroller.myscorecard!.score[index].o;
+                                var allscorcardIndex =
+                                    apicontroller.myscorecard!.scorecard;
+                                Scorecard? myscard;
+                                for (var scard in allscorcardIndex) {
+                                  if (scard.inning == inningTitile) {
+                                    myscard = scard;
+                                  }
+                                }
+
+                                print(myscard);
+                                var batsmanlist = myscard!.batting;
+                                var bowlerlist = myscard.bowling;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: 50,
+                                      width: MediaQuery.of(context).size.width,
+                                      color: Colors.deepPurple,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            inningTitile,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700),
+                                          ),
+                                          Text(
+                                            "$run-$wicket($over)",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    //batsman info
+                                    Batsmanlist(batsmanlist: batsmanlist),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Bowlerlist(bowlerlist: bowlerlist),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                  ],
+                                );
+                              },
                             )
-                          : Text("")
+                          : Text(""))
                     ],
                   )
           ],

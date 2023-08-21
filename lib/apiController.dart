@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 import 'models/fantacyDataModel.dart';
 import 'models/matchDetailsModel.dart';
+import 'models/matchScorecardModel.dart';
 import 'models/seriesAllDetailModel.dart';
 
 class Apicontroller extends GetxController {
@@ -20,7 +21,7 @@ class Apicontroller extends GetxController {
 
     //getFantacyData();
     getSeriesList();
-    liveDataTimer = Timer.periodic(Duration(seconds: 1000), (_) {
+    liveDataTimer = Timer.periodic(Duration(seconds: 100000), (_) {
       setMatchesData();
     });
   }
@@ -60,8 +61,6 @@ class Apicontroller extends GetxController {
         completedMatches
             .addAll(newmatches.where((match) => match.ms == "result"));
 
-        print("live mtc: $liveMatches");
-
         print("Live match data updated");
       }
     } catch (e) {
@@ -100,26 +99,24 @@ class Apicontroller extends GetxController {
     }
   }
 
-  var matchinfo = [];
-  upcomingmatchDetails(String id) async {
-    isloading.value = true;
-
-    final api = matchInfoApi + id;
-
+  RxList batsmanlist = [].obs;
+  MatchScoreCard? myscorecard;
+  Future<MatchScoreCard> getScorecard(String id) async {
+    final api = matchScoreCardApi + id;
     var response = await http.get(Uri.parse(api));
-    try {
-      if (response.statusCode == 200) {
-        isloading.value = false;
-        var jsonData = json.decode(response.body);
-        var maindata = jsonData['data'];
 
-        print(maindata);
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
 
-        print(matchinfo);
-      }
-    } catch (e) {
-      isloading.value = false;
-      print(e);
+      var maindata = data["data"];
+      print("score data get");
+      myscorecard = MatchScoreCard.fromJson(maindata);
+
+      print(myscorecard);
+
+      return MatchScoreCard.fromJson(maindata);
+    } else {
+      throw Exception('Failed to load score data');
     }
   }
 
@@ -187,5 +184,11 @@ class Apicontroller extends GetxController {
       isloading.value = false;
       throw Exception("failsed to load data");
     }
+  }
+
+  RxBool clickvalue = false.obs;
+
+  clickOnButton() {
+    clickvalue.value = !clickvalue.value;
   }
 }

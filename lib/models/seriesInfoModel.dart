@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class SeriesInfo {
   String id;
   String name;

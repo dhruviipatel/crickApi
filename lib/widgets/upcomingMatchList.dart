@@ -1,4 +1,3 @@
-import 'package:crickapi_trial/models/seriesInfoModel.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
